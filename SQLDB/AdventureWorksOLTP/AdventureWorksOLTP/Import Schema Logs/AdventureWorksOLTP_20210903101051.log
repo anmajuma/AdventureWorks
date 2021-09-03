@@ -1,0 +1,86 @@
+03-09-2021 15:40:51	This log contains information about the import schema operation into project 'AdventureWorksOLTP' on computer 'DESKTOP-93EABL9' by user 'hp'.
+03-09-2021 15:40:51	Import of database schema has started.
+03-09-2021 15:41:10	Gathering database credentials
+03-09-2021 15:41:10	Gathering database options
+03-09-2021 15:41:10	Gathering generic database scoped configuration option
+03-09-2021 15:41:10	Gathering users
+03-09-2021 15:41:10	Gathering roles
+03-09-2021 15:41:10	Gathering application roles
+03-09-2021 15:41:10	Gathering role memberships
+03-09-2021 15:41:10	Gathering filegroups
+03-09-2021 15:41:10	Gathering full-text catalogs
+03-09-2021 15:41:10	Gathering assemblies
+03-09-2021 15:41:10	Gathering certificates
+03-09-2021 15:41:10	Gathering asymmetric keys
+03-09-2021 15:41:10	Gathering symmetric keys
+03-09-2021 15:41:10	Gathering encrypted symmetric keys
+03-09-2021 15:41:10	Gathering schemas
+03-09-2021 15:41:10	Gathering XML schema collections
+03-09-2021 15:41:26	Gathering user-defined data types
+03-09-2021 15:41:26	Gathering user-defined types
+03-09-2021 15:41:26	Gathering table types
+03-09-2021 15:41:26	Gathering unique keys for table types
+03-09-2021 15:41:26	Gathering primary keys for table types
+03-09-2021 15:41:26	Gathering indexes for table types
+03-09-2021 15:41:26	Gathering check constraints for table types
+03-09-2021 15:41:26	Gathering default constraints for table types
+03-09-2021 15:41:26	Gathering partition functions
+03-09-2021 15:41:26	Gathering partition schemes
+03-09-2021 15:41:26	Gathering functions
+03-09-2021 15:42:41	Gathering encrypted functions
+03-09-2021 15:43:03	Gathering aggregates
+03-09-2021 15:43:18	Gathering procedures
+03-09-2021 15:44:00	Gathering encrypted procedures
+03-09-2021 15:44:03	Gathering tables
+03-09-2021 15:44:42	Gathering primary keys
+03-09-2021 15:44:50	Gathering unique constraints
+03-09-2021 15:44:51	Gathering foreign keys
+03-09-2021 15:44:51	Gathering default constraints
+03-09-2021 15:44:51	Gathering check constraints
+03-09-2021 15:44:52	Gathering views
+03-09-2021 15:44:53	Gathering encrypted views
+03-09-2021 15:44:54	Gathering indexes
+03-09-2021 15:44:54	Gathering statistics
+03-09-2021 15:44:54	Gathering full-text index stoplists
+03-09-2021 15:44:54	Gathering search property lists
+03-09-2021 15:44:54	Gathering search properties
+03-09-2021 15:44:54	Gathering full-text indexes
+03-09-2021 15:44:55	Gathering column store indexes
+03-09-2021 15:44:55	Gathering spatial indexes
+03-09-2021 15:44:55	Gathering XML indexes
+03-09-2021 15:44:56	Gathering Selective XML indexes
+03-09-2021 15:44:56	Gathering encrypted triggers
+03-09-2021 15:44:57	Gathering triggers
+03-09-2021 15:44:57	Gathering encrypted and clr ddl triggers
+03-09-2021 15:44:57	Gathering ddl triggers
+03-09-2021 15:44:57	Creating edge constraints
+03-09-2021 15:44:57	Gathering synonyms
+03-09-2021 15:45:14	Gathering defaults
+03-09-2021 15:45:15	Gathering data constraint uddt bindings
+03-09-2021 15:45:32	Gathering rules
+03-09-2021 15:45:33	Gathering data constraint uddt bindings
+03-09-2021 15:45:33	Gathering message types
+03-09-2021 15:45:33	Gathering queues
+03-09-2021 15:45:34	Gathering contracts
+03-09-2021 15:45:34	Gathering services
+03-09-2021 15:45:35	Gathering event notifications
+03-09-2021 15:45:35	Gathering remote service bindings
+03-09-2021 15:45:35	Gathering broker priorities
+03-09-2021 15:45:35	Gathering signatures
+03-09-2021 15:45:35	Gathering data compression options
+03-09-2021 15:45:35	Gathering sequence types
+03-09-2021 15:45:35	Gathering security policies
+03-09-2021 15:45:35	Gather column encryption keys
+03-09-2021 15:45:35	Gathering column master keys
+03-09-2021 15:45:35	Gathering external data sources
+03-09-2021 15:45:35	Gathering external file formats
+03-09-2021 15:45:36	Gathering external tables
+03-09-2021 15:45:36	Gathering extended properties
+03-09-2021 15:45:56	Gathering credentials
+03-09-2021 15:45:56	Gathering logins
+03-09-2021 15:45:56	Gathering server audits
+03-09-2021 15:45:59	Scanning project for duplicate elements
+03-09-2021 15:45:59	Finished duplicate element processing
+03-09-2021 15:46:45	Finished importing database.
+03-09-2021 15:46:45	A summary of the import was saved to the following location: D:\repos\AdventureWorks\SQLDB\AdventureWorksOLTP\AdventureWorksOLTP\Import Schema Logs\AdventureWorksOLTP_20210903101051.log
+03-09-2021 15:46:45	Click Finish to continue...
