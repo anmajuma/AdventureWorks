@@ -1,0 +1,10 @@
+D:\repos\AdventureWorks\SQLDB\AdventureWorksOLTP\AdventureWorksOLTP\bin\Debug\AdventureWorksOLTP.dacpac
+D:\repos\AdventureWorks\SQLDB\AdventureWorksOLTP\AdventureWorksOLTP\obj\Debug\AdventureWorksOLTP.sqlproj.AssemblyReference.cache
+D:\repos\AdventureWorks\SQLDB\AdventureWorksOLTP\AdventureWorksOLTP\obj\Debug\Model.xml
+D:\repos\AdventureWorks\SQLDB\AdventureWorksOLTP\AdventureWorksOLTP\obj\Debug\refactor.xml
+D:\repos\AdventureWorks\SQLDB\AdventureWorksOLTP\AdventureWorksOLTP\obj\Debug\postdeploy.sql
+D:\repos\AdventureWorks\SQLDB\AdventureWorksOLTP\AdventureWorksOLTP\obj\Debug\predeploy.sql
+D:\repos\AdventureWorks\SQLDB\AdventureWorksOLTP\AdventureWorksOLTP\obj\Debug\AdventureWorksOLTP.dll
+D:\repos\AdventureWorks\SQLDB\AdventureWorksOLTP\AdventureWorksOLTP\obj\Debug\AdventureWorksOLTP.pdb
+D:\repos\AdventureWorks\SQLDB\AdventureWorksOLTP\AdventureWorksOLTP\bin\Debug\AdventureWorksOLTP.dll
+D:\repos\AdventureWorks\SQLDB\AdventureWorksOLTP\AdventureWorksOLTP\bin\Debug\AdventureWorksOLTP.pdb

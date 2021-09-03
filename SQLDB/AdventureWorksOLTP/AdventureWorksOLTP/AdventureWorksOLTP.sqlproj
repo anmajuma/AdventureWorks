@@ -181,8 +181,6 @@
     <Build Include="Purchasing\Views\vVendorWithAddresses.sql" />
     <Build Include="Storage\AW2016FullTextCatalog.sql" />
     <Build Include="FullTextIndexes.sql" />
-    <Build Include="Security\demo.sql" />
-    <Build Include="Security\animajum.sql" />
     <Build Include="Security\RoleMemberships.sql" />
     <Build Include="dbo\Functions\ufnGetAccountingStartDate.sql" />
     <Build Include="dbo\Functions\ufnGetAccountingEndDate.sql" />
