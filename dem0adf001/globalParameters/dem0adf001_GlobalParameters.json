@@ -1,0 +1,6 @@
+{
+	"test_gobal_param": {
+		"type": "string",
+		"value": "test"
+	}
+}

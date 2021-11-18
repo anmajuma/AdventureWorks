@@ -1,0 +1,1783 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "dem0adf001"
+		},
+		"AzureBatch1_accessKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accessKey' of 'AzureBatch1'"
+		},
+		"AzureBatchStorage_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureBatchStorage'"
+		},
+		"MongoDbAtlas_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'MongoDbAtlas'"
+		},
+		"adbls_accessToken": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accessToken' of 'adbls'"
+		},
+		"aws_sftp_privateKeyContent": {
+			"type": "secureString",
+			"metadata": "Secure string for 'privateKeyContent' of 'aws_sftp'"
+		},
+		"aws_sftp_passPhrase": {
+			"type": "secureString",
+			"metadata": "Secure string for 'passPhrase' of 'aws_sftp'"
+		},
+		"flightls_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'flightls'"
+		},
+		"landingzls_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'landingzls'"
+		},
+		"lnkadls_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'lnkadls'"
+		},
+		"lnkblb2_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'lnkblb2'"
+		},
+		"onpremSQL_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'onpremSQL'"
+		},
+		"AKV_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://demokv07142021.vault.azure.net/"
+		},
+		"AzureBatch1_properties_typeProperties_batchUri": {
+			"type": "string",
+			"defaultValue": "https://demobatch01.eastus.batch.azure.com"
+		},
+		"AzureBatch1_properties_typeProperties_poolName": {
+			"type": "string",
+			"defaultValue": "demopythonpool"
+		},
+		"AzureBatch1_properties_typeProperties_accountName": {
+			"type": "string",
+			"defaultValue": "demobatch01"
+		},
+		"AzureKeyVault_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://demo343.vault.azure.net/"
+		},
+		"GoogleAnalytics_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://analyticsreporting.googleapis.com"
+		},
+		"HttpServer1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://api.schiphol.nl/public-flights/flights"
+		},
+		"MongoDbAtlas_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "sample_airbnb"
+		},
+		"MyAzureFunctionApp_properties_typeProperties_functionAppUrl": {
+			"type": "string",
+			"defaultValue": "https://rs20200827.azurewebsites.net"
+		},
+		"aws_sftp_properties_typeProperties_host": {
+			"type": "string",
+			"defaultValue": "ec2-18-208-225-129.compute-1.amazonaws.com"
+		},
+		"aws_sftp_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "ec2-user"
+		},
+		"landingzls_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://demo343.dfs.core.windows.net"
+		},
+		"lnkadls_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://demo343.dfs.core.windows.net"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline_stats_check')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Subscription",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": "https://management.azure.com/subscriptions?api-version=2020-01-01",
+							"method": "GET",
+							"headers": {},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://management.core.windows.net/"
+							}
+						}
+					},
+					{
+						"name": "Set Parsed Subscription",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Get Subscription",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "SubscriptionId",
+							"value": {
+								"value": "@replace(activity('Get Subscription').output.value[0].id,'/subscriptions/','')",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Get Resource Group",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "configds",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Check For Valid Pipeline Name",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Get Resource Group",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "Set Parsed Subscription",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "https://management.azure.com/subscriptions/@{variables('SubscriptionId')}/resourceGroups/@{activity('Get Resource Group').output.firstRow.Prop_0}/providers/Microsoft.DataFactory/factories/@{pipeline().DataFactory}/pipelines/@{pipeline().parameters.PipelineName}?api-version=2018-06-01",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://management.core.windows.net/"
+							}
+						}
+					},
+					{
+						"name": "Get Query Run Days Value",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "dateds",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "Check Running Pipeline",
+						"type": "Until",
+						"dependsOn": [
+							{
+								"activity": "Check For Valid Pipeline Name",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "Get Query Run Days Value",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(int(activity('Filter Running Pipelines').output.FilteredItemsCount),0)",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Filter Running Pipelines",
+									"type": "Filter",
+									"dependsOn": [
+										{
+											"activity": "Get Pipeline Runs",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"items": {
+											"value": "@activity('Get Pipeline Runs').output.value",
+											"type": "Expression"
+										},
+										"condition": {
+											"value": "@and(not(equals(item().runId,pipeline().RunId)),or(equals(item().status,'InProgress'),equals(item().status,'Queued')))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Get Pipeline Runs",
+									"type": "WebActivity",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"url": {
+											"value": "https://management.azure.com/subscriptions/@{variables('SubscriptionId')}/resourceGroups/@{activity('Get Resource Group').output.firstRow.Prop_0}/providers/Microsoft.DataFactory/factories/@{pipeline().DataFactory}/queryPipelineRuns?api-version=2018-06-01",
+											"type": "Expression"
+										},
+										"method": "POST",
+										"headers": {},
+										"body": {
+											"lastUpdatedAfter": "@{adddays(utcnow(),int(activity('Get Query Run Days Value').output.firstRow.Prop_0))}",
+											"lastUpdatedBefore": "@{utcnow()}",
+											"filters": [
+												{
+													"operand": "PipelineName",
+													"operator": "Equals",
+													"values": [
+														"@{pipeline().parameters.PipelineName}"
+													]
+												}
+											]
+										},
+										"authentication": {
+											"type": "MSI",
+											"resource": "https://management.azure.com"
+										}
+									}
+								}
+							],
+							"timeout": "7.00:00:00"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"PipelineName": {
+						"type": "string",
+						"defaultValue": "test_pipeline"
+					}
+				},
+				"variables": {
+					"SubscriptionId": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2021-03-30T18:34:07Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/configds')]",
+				"[concat(variables('factoryId'), '/datasets/dateds')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sql_to_blob')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "sql_to_blob",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "sqlPersonDS",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "personds",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2021-11-03T15:41:09Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/sqlPersonDS')]",
+				"[concat(variables('factoryId'), '/datasets/personds')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/start_adb_cluster')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "start_cluster",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "set_adb_pat",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@pipeline().parameters.strtclurl",
+								"type": "Expression"
+							},
+							"connectVia": {
+								"referenceName": "SelfHostedIR",
+								"type": "IntegrationRuntimeReference"
+							},
+							"method": "POST",
+							"headers": {
+								"Authorization": {
+									"value": "@concat('Bearer ',variables('adbpat'))",
+									"type": "Expression"
+								}
+							},
+							"body": {
+								"value": "@pipeline().parameters.jobid",
+								"type": "Expression"
+							},
+							"linkedServices": [
+								{
+									"referenceName": "AzureKeyVault",
+									"type": "LinkedServiceReference"
+								}
+							]
+						}
+					},
+					{
+						"name": "get_adb_pat",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@pipeline().parameters.getpaturl",
+								"type": "Expression"
+							},
+							"connectVia": {
+								"referenceName": "SelfHostedIR",
+								"type": "IntegrationRuntimeReference"
+							},
+							"method": "GET",
+							"headers": {},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "set_adb_pat",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "get_adb_pat",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "adbpat",
+							"value": {
+								"value": "@activity('get_adb_pat').output.value",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"strtclurl": {
+						"type": "string",
+						"defaultValue": "https://adb-2244279309690738.18.azuredatabricks.net/api/2.1/jobs/run-now"
+					},
+					"getpaturl": {
+						"type": "string",
+						"defaultValue": "https://demo343.vault.azure.net/secrets/adbpat/cc27554c9922453a8798ed3af8fb5891?api-version=7.0"
+					},
+					"jobid": {
+						"type": "string",
+						"defaultValue": {
+							"job_id": 85
+						}
+					}
+				},
+				"variables": {
+					"adbpat": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2021-10-26T16:38:35Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureKeyVault')]",
+				"[concat(variables('factoryId'), '/integrationRuntimes/SelfHostedIR')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/test_pipeline')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata1",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "MongoDBData",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "JsonReadSettings"
+							}
+						}
+					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata1').output.childitems",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Get Metadata2",
+									"type": "GetMetadata",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "fildedeatils",
+											"type": "DatasetReference",
+											"parameters": {
+												"filename": {
+													"value": "@item().name",
+													"type": "Expression"
+												}
+											}
+										},
+										"fieldList": [
+											"lastModified",
+											"itemName",
+											"size",
+											"structure"
+										],
+										"storeSettings": {
+											"type": "AzureBlobFSReadSettings",
+											"recursive": true,
+											"enablePartitionDiscovery": false
+										},
+										"formatSettings": {
+											"type": "DelimitedTextReadSettings"
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"variables": {
+					"filesize": {
+						"type": "Array"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2021-08-19T05:52:11Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/MongoDBData')]",
+				"[concat(variables('factoryId'), '/datasets/fildedeatils')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/web_api')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data Ingestion",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "HttpReadSettings",
+									"requestMethod": "GET",
+									"requestTimeout": ""
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "fllds",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "flightds",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Data Cleansing",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "Data Ingestion",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Users/anmajum@live.com/AzureDataBricksDemo",
+							"baseParameters": {
+								"table_name": "flight_details"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "adbls",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2021-10-22T09:17:08Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/fllds')]",
+				"[concat(variables('factoryId'), '/datasets/flightds')]",
+				"[concat(variables('factoryId'), '/linkedServices/adbls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MDbCollection')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "MongoDbAtlas",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "MongoDbAtlasCollection",
+				"schema": [],
+				"typeProperties": {
+					"collection": "listingsAndReviews"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/MongoDbAtlas')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MongoDBData')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "lnkadls",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "MongoDB",
+						"fileSystem": "raw"
+					}
+				},
+				"schema": {
+					"type": "object",
+					"properties": {
+						"surveyId": {
+							"type": "string"
+						},
+						"surveyName": {
+							"type": "string"
+						},
+						"Questions": {
+							"type": "object",
+							"properties": {
+								"QID101": {
+									"type": "object",
+									"properties": {
+										"QuestionID": {
+											"type": "string"
+										},
+										"QuestionText": {
+											"type": "string"
+										},
+										"QuestionType": {
+											"type": "string"
+										}
+									}
+								},
+								"QID99": {
+									"type": "object",
+									"properties": {
+										"QuestionID": {
+											"type": "string"
+										},
+										"QuestionText": {
+											"type": "string"
+										},
+										"QuestionType": {
+											"type": "string"
+										}
+									}
+								},
+								"QID150": {
+									"type": "object",
+									"properties": {
+										"QuestionID": {
+											"type": "string"
+										},
+										"QuestionText": {
+											"type": "string"
+										},
+										"QuestionType": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						},
+						"commitInfo": {
+							"type": "object",
+							"properties": {
+								"timestamp": {
+									"type": "integer"
+								},
+								"userId": {
+									"type": "string"
+								},
+								"userName": {
+									"type": "string"
+								},
+								"operation": {
+									"type": "string"
+								},
+								"operationParameters": {
+									"type": "object",
+									"properties": {
+										"mode": {
+											"type": "string"
+										},
+										"partitionBy": {
+											"type": "string"
+										}
+									}
+								},
+								"notebook": {
+									"type": "object",
+									"properties": {
+										"notebookId": {
+											"type": "string"
+										}
+									}
+								},
+								"clusterId": {
+									"type": "string"
+								},
+								"isolationLevel": {
+									"type": "string"
+								},
+								"isBlindAppend": {
+									"type": "boolean"
+								},
+								"operationMetrics": {
+									"type": "object",
+									"properties": {
+										"numFiles": {
+											"type": "string"
+										},
+										"numOutputBytes": {
+											"type": "string"
+										},
+										"numOutputRows": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						},
+						"protocol": {
+							"type": "object",
+							"properties": {
+								"minReaderVersion": {
+									"type": "integer"
+								},
+								"minWriterVersion": {
+									"type": "integer"
+								}
+							}
+						},
+						"metaData": {
+							"type": "object",
+							"properties": {
+								"id": {
+									"type": "string"
+								},
+								"format": {
+									"type": "object",
+									"properties": {
+										"provider": {
+											"type": "string"
+										},
+										"options": {
+											"type": "object"
+										}
+									}
+								},
+								"schemaString": {
+									"type": "string"
+								},
+								"partitionColumns": {
+									"type": "array"
+								},
+								"configuration": {
+									"type": "object"
+								},
+								"createdTime": {
+									"type": "integer"
+								}
+							}
+						},
+						"add": {
+							"type": "object",
+							"properties": {
+								"path": {
+									"type": "string"
+								},
+								"partitionValues": {
+									"type": "object"
+								},
+								"size": {
+									"type": "integer"
+								},
+								"modificationTime": {
+									"type": "integer"
+								},
+								"dataChange": {
+									"type": "boolean"
+								},
+								"stats": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/lnkadls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/REST_GoogleAnalyticsReports')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "GoogleAnalytics",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {
+					"relativeUrl": "/v4/reports:batchGet"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/GoogleAnalytics')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/configds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "lnkadls",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "config1.txt",
+						"fileSystem": "demo"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/lnkadls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dateds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "lnkadls",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "dt.txt",
+						"fileSystem": "demo"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/lnkadls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/fildedeatils')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "lnkadls",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"filename": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().filename",
+							"type": "Expression"
+						},
+						"fileSystem": "demo"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/lnkadls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/flightds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "flightls",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@concat('flightdata','_',substring(formatDateTime(utcnow(), 'yyyy-MM-dd hh:mm:ss'),11,8),'.json')",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@concat(formatDateTime(utcnow(), 'yyyy-MM-dd'))",
+							"type": "Expression"
+						},
+						"container": "landingz"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/flightls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/fllds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "HttpServer1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "HttpServerLocation"
+					}
+				},
+				"schema": {
+					"type": "object",
+					"properties": {
+						"flights": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"lastUpdatedAt": {
+										"type": "string"
+									},
+									"actualLandingTime": {
+										"type": "string"
+									},
+									"actualOffBlockTime": {
+										"type": "null"
+									},
+									"aircraftRegistration": {
+										"type": "string"
+									},
+									"aircraftType": {
+										"type": "object",
+										"properties": {
+											"iataMain": {
+												"type": "string"
+											},
+											"iataSub": {
+												"type": "string"
+											}
+										}
+									},
+									"baggageClaim": {
+										"type": "object",
+										"properties": {
+											"belts": {
+												"type": "array",
+												"items": {
+													"type": "string"
+												}
+											}
+										}
+									},
+									"checkinAllocations": {
+										"type": "null"
+									},
+									"codeshares": {
+										"type": "null"
+									},
+									"estimatedLandingTime": {
+										"type": "string"
+									},
+									"expectedTimeBoarding": {
+										"type": "null"
+									},
+									"expectedTimeGateClosing": {
+										"type": "null"
+									},
+									"expectedTimeGateOpen": {
+										"type": "null"
+									},
+									"expectedTimeOnBelt": {
+										"type": "string"
+									},
+									"expectedSecurityFilter": {
+										"type": "null"
+									},
+									"flightDirection": {
+										"type": "string"
+									},
+									"flightName": {
+										"type": "string"
+									},
+									"flightNumber": {
+										"type": "integer"
+									},
+									"gate": {
+										"type": "string"
+									},
+									"pier": {
+										"type": "string"
+									},
+									"id": {
+										"type": "string"
+									},
+									"isOperationalFlight": {
+										"type": "boolean"
+									},
+									"mainFlight": {
+										"type": "string"
+									},
+									"prefixIATA": {
+										"type": "string"
+									},
+									"prefixICAO": {
+										"type": "string"
+									},
+									"airlineCode": {
+										"type": "integer"
+									},
+									"publicEstimatedOffBlockTime": {
+										"type": "null"
+									},
+									"publicFlightState": {
+										"type": "object",
+										"properties": {
+											"flightStates": {
+												"type": "array",
+												"items": {
+													"type": "string"
+												}
+											}
+										}
+									},
+									"route": {
+										"type": "object",
+										"properties": {
+											"destinations": {
+												"type": "array",
+												"items": {
+													"type": "string"
+												}
+											},
+											"eu": {
+												"type": "string"
+											},
+											"visa": {
+												"type": "boolean"
+											}
+										}
+									},
+									"scheduleDateTime": {
+										"type": "string"
+									},
+									"scheduleDate": {
+										"type": "string"
+									},
+									"scheduleTime": {
+										"type": "string"
+									},
+									"serviceType": {
+										"type": "string"
+									},
+									"terminal": {
+										"type": "integer"
+									},
+									"transferPositions": {
+										"type": "null"
+									},
+									"schemaVersion": {
+										"type": "string"
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/HttpServer1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/getfileinfo')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "lnkadls",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "demo"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/lnkadls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/mongoraw')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "lnkblb2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"container": "demo"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/lnkblb2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/personds')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "lnkblb2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "person.csv",
+						"container": "demo"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/lnkblb2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sqlPersonDS')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "onpremSQL",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [
+					{
+						"name": "BusinessEntityID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "PersonType",
+						"type": "nchar"
+					},
+					{
+						"name": "NameStyle",
+						"type": "bit"
+					},
+					{
+						"name": "Title",
+						"type": "nvarchar"
+					},
+					{
+						"name": "FirstName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "MiddleName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "LastName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Suffix",
+						"type": "nvarchar"
+					},
+					{
+						"name": "EmailPromotion",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "AdditionalContactInfo",
+						"type": "xml"
+					},
+					{
+						"name": "Demographics",
+						"type": "xml"
+					},
+					{
+						"name": "rowguid",
+						"type": "uniqueidentifier"
+					},
+					{
+						"name": "ModifiedDate",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "Person",
+					"table": "Person"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/onpremSQL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AKV')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('AKV_properties_typeProperties_baseUrl')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureBatch1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBatch",
+				"typeProperties": {
+					"batchUri": "[parameters('AzureBatch1_properties_typeProperties_batchUri')]",
+					"poolName": "[parameters('AzureBatch1_properties_typeProperties_poolName')]",
+					"accountName": "[parameters('AzureBatch1_properties_typeProperties_accountName')]",
+					"linkedServiceName": {
+						"referenceName": "AzureBatchStorage",
+						"type": "LinkedServiceReference"
+					},
+					"accessKey": {
+						"type": "SecureString",
+						"value": "[parameters('AzureBatch1_accessKey')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBatchStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureBatchStorage')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureBatchStorage_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureKeyVault')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('AzureKeyVault_properties_typeProperties_baseUrl')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/GoogleAnalytics')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('GoogleAnalytics_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": false,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/HttpServer1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "HttpServer",
+				"typeProperties": {
+					"url": "[parameters('HttpServer1_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous",
+					"authHeaders": {
+						"Accept": {
+							"type": "SecureString",
+							"value": "**********"
+						},
+						"app_id": {
+							"type": "SecureString",
+							"value": "**********"
+						},
+						"app_key": {
+							"type": "SecureString",
+							"value": "**********"
+						},
+						"ResourceVersion": {
+							"type": "SecureString",
+							"value": "**********"
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MongoDbAtlas')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "MongoDbAtlas",
+				"typeProperties": {
+					"connectionString": "[parameters('MongoDbAtlas_connectionString')]",
+					"database": "[parameters('MongoDbAtlas_properties_typeProperties_database')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MyAzureFunctionApp')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureFunction",
+				"typeProperties": {
+					"functionAppUrl": "[parameters('MyAzureFunctionApp_properties_typeProperties_functionAppUrl')]",
+					"functionKey": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "AzureKeyVault",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "GetOAuthTokenFunctionKey"
+					},
+					"authentication": "Anonymous"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureKeyVault')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/adbls')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricks",
+				"typeProperties": {
+					"domain": "https://adb-7897172744536891.11.azuredatabricks.net",
+					"accessToken": {
+						"type": "SecureString",
+						"value": "[parameters('adbls_accessToken')]"
+					},
+					"existingClusterId": "1022-081114-94e5djq9"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/aws_sftp')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "Sftp",
+				"typeProperties": {
+					"host": "[parameters('aws_sftp_properties_typeProperties_host')]",
+					"port": 22,
+					"skipHostKeyValidation": true,
+					"authenticationType": "SshPublicKey",
+					"userName": "[parameters('aws_sftp_properties_typeProperties_userName')]",
+					"privateKeyContent": {
+						"type": "SecureString",
+						"value": "[parameters('aws_sftp_privateKeyContent')]"
+					},
+					"passPhrase": {
+						"type": "SecureString",
+						"value": "[parameters('aws_sftp_passPhrase')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/flightls')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('flightls_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/landingzls')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('landingzls_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('landingzls_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/lnkadls')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('lnkadls_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('lnkadls_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/lnkblb2')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('lnkblb2_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "SelfHostedIR",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/SelfHostedIR')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/onpremSQL')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('onpremSQL_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "SelfHostedIR",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/SelfHostedIR')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SelfHostedIR')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"description": "SelfHostedIR",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		}
+	]
+}

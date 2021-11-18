@@ -1,0 +1,81 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "dem0adf001"
+		},
+		"AzureBatch1_accessKey": {
+			"value": ""
+		},
+		"AzureBatchStorage_connectionString": {
+			"value": ""
+		},
+		"MongoDbAtlas_connectionString": {
+			"value": ""
+		},
+		"adbls_accessToken": {
+			"value": ""
+		},
+		"aws_sftp_privateKeyContent": {
+			"value": ""
+		},
+		"aws_sftp_passPhrase": {
+			"value": ""
+		},
+		"flightls_connectionString": {
+			"value": ""
+		},
+		"landingzls_accountKey": {
+			"value": ""
+		},
+		"lnkadls_accountKey": {
+			"value": ""
+		},
+		"lnkblb2_connectionString": {
+			"value": ""
+		},
+		"onpremSQL_connectionString": {
+			"value": ""
+		},
+		"AKV_properties_typeProperties_baseUrl": {
+			"value": "https://demokv07142021.vault.azure.net/"
+		},
+		"AzureBatch1_properties_typeProperties_batchUri": {
+			"value": "https://demobatch01.eastus.batch.azure.com"
+		},
+		"AzureBatch1_properties_typeProperties_poolName": {
+			"value": "demopythonpool"
+		},
+		"AzureBatch1_properties_typeProperties_accountName": {
+			"value": "demobatch01"
+		},
+		"AzureKeyVault_properties_typeProperties_baseUrl": {
+			"value": "https://demo343.vault.azure.net/"
+		},
+		"GoogleAnalytics_properties_typeProperties_url": {
+			"value": "https://analyticsreporting.googleapis.com"
+		},
+		"HttpServer1_properties_typeProperties_url": {
+			"value": "https://api.schiphol.nl/public-flights/flights"
+		},
+		"MongoDbAtlas_properties_typeProperties_database": {
+			"value": "sample_airbnb"
+		},
+		"MyAzureFunctionApp_properties_typeProperties_functionAppUrl": {
+			"value": "https://rs20200827.azurewebsites.net"
+		},
+		"aws_sftp_properties_typeProperties_host": {
+			"value": "ec2-18-208-225-129.compute-1.amazonaws.com"
+		},
+		"aws_sftp_properties_typeProperties_userName": {
+			"value": "ec2-user"
+		},
+		"landingzls_properties_typeProperties_url": {
+			"value": "https://demo343.dfs.core.windows.net"
+		},
+		"lnkadls_properties_typeProperties_url": {
+			"value": "https://demo343.dfs.core.windows.net"
+		}
+	}
+}
