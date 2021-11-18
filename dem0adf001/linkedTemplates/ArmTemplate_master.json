@@ -1,0 +1,230 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "dem0adf001"
+		},
+		"AzureBatch1_accessKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accessKey' of 'AzureBatch1'"
+		},
+		"AzureBatchStorage_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureBatchStorage'"
+		},
+		"MongoDbAtlas_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'MongoDbAtlas'"
+		},
+		"adbls_accessToken": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accessToken' of 'adbls'"
+		},
+		"aws_sftp_privateKeyContent": {
+			"type": "secureString",
+			"metadata": "Secure string for 'privateKeyContent' of 'aws_sftp'"
+		},
+		"aws_sftp_passPhrase": {
+			"type": "secureString",
+			"metadata": "Secure string for 'passPhrase' of 'aws_sftp'"
+		},
+		"flightls_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'flightls'"
+		},
+		"landingzls_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'landingzls'"
+		},
+		"lnkadls_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'lnkadls'"
+		},
+		"lnkblb2_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'lnkblb2'"
+		},
+		"onpremSQL_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'onpremSQL'"
+		},
+		"AKV_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://demokv07142021.vault.azure.net/"
+		},
+		"AzureBatch1_properties_typeProperties_batchUri": {
+			"type": "string",
+			"defaultValue": "https://demobatch01.eastus.batch.azure.com"
+		},
+		"AzureBatch1_properties_typeProperties_poolName": {
+			"type": "string",
+			"defaultValue": "demopythonpool"
+		},
+		"AzureBatch1_properties_typeProperties_accountName": {
+			"type": "string",
+			"defaultValue": "demobatch01"
+		},
+		"AzureKeyVault_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://demo343.vault.azure.net/"
+		},
+		"GoogleAnalytics_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://analyticsreporting.googleapis.com"
+		},
+		"HttpServer1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://api.schiphol.nl/public-flights/flights"
+		},
+		"MongoDbAtlas_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "sample_airbnb"
+		},
+		"MyAzureFunctionApp_properties_typeProperties_functionAppUrl": {
+			"type": "string",
+			"defaultValue": "https://rs20200827.azurewebsites.net"
+		},
+		"aws_sftp_properties_typeProperties_host": {
+			"type": "string",
+			"defaultValue": "ec2-18-208-225-129.compute-1.amazonaws.com"
+		},
+		"aws_sftp_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "ec2-user"
+		},
+		"landingzls_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://demo343.dfs.core.windows.net"
+		},
+		"lnkadls_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://demo343.dfs.core.windows.net"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI to storage account containing linked ARM templates"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Sas token to storage account containing linked ARM templates"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "dem0adf001_ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"AzureBatchStorage_connectionString": {
+						"value": "[parameters('AzureBatchStorage_connectionString')]"
+					},
+					"MongoDbAtlas_connectionString": {
+						"value": "[parameters('MongoDbAtlas_connectionString')]"
+					},
+					"adbls_accessToken": {
+						"value": "[parameters('adbls_accessToken')]"
+					},
+					"aws_sftp_privateKeyContent": {
+						"value": "[parameters('aws_sftp_privateKeyContent')]"
+					},
+					"aws_sftp_passPhrase": {
+						"value": "[parameters('aws_sftp_passPhrase')]"
+					},
+					"flightls_connectionString": {
+						"value": "[parameters('flightls_connectionString')]"
+					},
+					"landingzls_accountKey": {
+						"value": "[parameters('landingzls_accountKey')]"
+					},
+					"lnkadls_accountKey": {
+						"value": "[parameters('lnkadls_accountKey')]"
+					},
+					"AKV_properties_typeProperties_baseUrl": {
+						"value": "[parameters('AKV_properties_typeProperties_baseUrl')]"
+					},
+					"AzureKeyVault_properties_typeProperties_baseUrl": {
+						"value": "[parameters('AzureKeyVault_properties_typeProperties_baseUrl')]"
+					},
+					"GoogleAnalytics_properties_typeProperties_url": {
+						"value": "[parameters('GoogleAnalytics_properties_typeProperties_url')]"
+					},
+					"HttpServer1_properties_typeProperties_url": {
+						"value": "[parameters('HttpServer1_properties_typeProperties_url')]"
+					},
+					"MongoDbAtlas_properties_typeProperties_database": {
+						"value": "[parameters('MongoDbAtlas_properties_typeProperties_database')]"
+					},
+					"aws_sftp_properties_typeProperties_host": {
+						"value": "[parameters('aws_sftp_properties_typeProperties_host')]"
+					},
+					"aws_sftp_properties_typeProperties_userName": {
+						"value": "[parameters('aws_sftp_properties_typeProperties_userName')]"
+					},
+					"landingzls_properties_typeProperties_url": {
+						"value": "[parameters('landingzls_properties_typeProperties_url')]"
+					},
+					"lnkadls_properties_typeProperties_url": {
+						"value": "[parameters('lnkadls_properties_typeProperties_url')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "dem0adf001_ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"AzureBatch1_accessKey": {
+						"value": "[parameters('AzureBatch1_accessKey')]"
+					},
+					"lnkblb2_connectionString": {
+						"value": "[parameters('lnkblb2_connectionString')]"
+					},
+					"onpremSQL_connectionString": {
+						"value": "[parameters('onpremSQL_connectionString')]"
+					},
+					"AzureBatch1_properties_typeProperties_batchUri": {
+						"value": "[parameters('AzureBatch1_properties_typeProperties_batchUri')]"
+					},
+					"AzureBatch1_properties_typeProperties_poolName": {
+						"value": "[parameters('AzureBatch1_properties_typeProperties_poolName')]"
+					},
+					"AzureBatch1_properties_typeProperties_accountName": {
+						"value": "[parameters('AzureBatch1_properties_typeProperties_accountName')]"
+					},
+					"MyAzureFunctionApp_properties_typeProperties_functionAppUrl": {
+						"value": "[parameters('MyAzureFunctionApp_properties_typeProperties_functionAppUrl')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'dem0adf001_ArmTemplate_0')]"
+			]
+		}
+	]
+}
