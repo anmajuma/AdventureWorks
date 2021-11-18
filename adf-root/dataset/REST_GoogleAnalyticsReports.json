@@ -1,0 +1,16 @@
+{
+	"name": "REST_GoogleAnalyticsReports",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "GoogleAnalytics",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"typeProperties": {
+			"relativeUrl": "/v4/reports:batchGet"
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,126 @@
+{
+	"name": "start_adb_cluster",
+	"properties": {
+		"activities": [
+			{
+				"name": "start_cluster",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "set_adb_pat",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "@pipeline().parameters.strtclurl",
+						"type": "Expression"
+					},
+					"connectVia": {
+						"referenceName": "SelfHostedIR",
+						"type": "IntegrationRuntimeReference"
+					},
+					"method": "POST",
+					"headers": {
+						"Authorization": {
+							"value": "@concat('Bearer ',variables('adbpat'))",
+							"type": "Expression"
+						}
+					},
+					"body": {
+						"value": "@pipeline().parameters.jobid",
+						"type": "Expression"
+					},
+					"linkedServices": [
+						{
+							"referenceName": "AzureKeyVault",
+							"type": "LinkedServiceReference"
+						}
+					]
+				}
+			},
+			{
+				"name": "get_adb_pat",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "@pipeline().parameters.getpaturl",
+						"type": "Expression"
+					},
+					"connectVia": {
+						"referenceName": "SelfHostedIR",
+						"type": "IntegrationRuntimeReference"
+					},
+					"method": "GET",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "set_adb_pat",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "get_adb_pat",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "adbpat",
+					"value": {
+						"value": "@activity('get_adb_pat').output.value",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"strtclurl": {
+				"type": "string",
+				"defaultValue": "https://adb-2244279309690738.18.azuredatabricks.net/api/2.1/jobs/run-now"
+			},
+			"getpaturl": {
+				"type": "string",
+				"defaultValue": "https://demo343.vault.azure.net/secrets/adbpat/cc27554c9922453a8798ed3af8fb5891?api-version=7.0"
+			},
+			"jobid": {
+				"type": "string",
+				"defaultValue": {
+					"job_id": 85
+				}
+			}
+		},
+		"variables": {
+			"adbpat": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-10-26T16:38:35Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

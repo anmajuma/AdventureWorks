@@ -1,0 +1,19 @@
+{
+	"name": "mongoraw",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "lnkblb2",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"container": "demo"
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

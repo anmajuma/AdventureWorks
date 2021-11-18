@@ -1,0 +1,27 @@
+{
+	"name": "flightds",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "flightls",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@concat('flightdata','_',substring(formatDateTime(utcnow(), 'yyyy-MM-dd hh:mm:ss'),11,8),'.json')",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@concat(formatDateTime(utcnow(), 'yyyy-MM-dd'))",
+					"type": "Expression"
+				},
+				"container": "landingz"
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

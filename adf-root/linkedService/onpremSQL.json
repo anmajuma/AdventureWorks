@@ -1,0 +1,16 @@
+{
+	"name": "onpremSQL",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "integrated security=False;data source=DESKTOP-93EABL9\\SQLEXPRESS;initial catalog=AdventureWorks2019;user id=adfuser",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiIyMzEyOWIzOC1jMmViLTQyNTktOTgyOS0zOWQyZmQyYTZjMzQiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "SelfHostedIR",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

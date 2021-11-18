@@ -1,0 +1,247 @@
+{
+	"name": "pipeline_stats_check",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get Subscription",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://management.azure.com/subscriptions?api-version=2020-01-01",
+					"method": "GET",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://management.core.windows.net/"
+					}
+				}
+			},
+			{
+				"name": "Set Parsed Subscription",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Get Subscription",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "SubscriptionId",
+					"value": {
+						"value": "@replace(activity('Get Subscription').output.value[0].id,'/subscriptions/','')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Get Resource Group",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "configds",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Check For Valid Pipeline Name",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Get Resource Group",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Set Parsed Subscription",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "https://management.azure.com/subscriptions/@{variables('SubscriptionId')}/resourceGroups/@{activity('Get Resource Group').output.firstRow.Prop_0}/providers/Microsoft.DataFactory/factories/@{pipeline().DataFactory}/pipelines/@{pipeline().parameters.PipelineName}?api-version=2018-06-01",
+						"type": "Expression"
+					},
+					"method": "GET",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://management.core.windows.net/"
+					}
+				}
+			},
+			{
+				"name": "Get Query Run Days Value",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "dateds",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Check Running Pipeline",
+				"type": "Until",
+				"dependsOn": [
+					{
+						"activity": "Check For Valid Pipeline Name",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Get Query Run Days Value",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(int(activity('Filter Running Pipelines').output.FilteredItemsCount),0)",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Filter Running Pipelines",
+							"type": "Filter",
+							"dependsOn": [
+								{
+									"activity": "Get Pipeline Runs",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"items": {
+									"value": "@activity('Get Pipeline Runs').output.value",
+									"type": "Expression"
+								},
+								"condition": {
+									"value": "@and(not(equals(item().runId,pipeline().RunId)),or(equals(item().status,'InProgress'),equals(item().status,'Queued')))",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "Get Pipeline Runs",
+							"type": "WebActivity",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"url": {
+									"value": "https://management.azure.com/subscriptions/@{variables('SubscriptionId')}/resourceGroups/@{activity('Get Resource Group').output.firstRow.Prop_0}/providers/Microsoft.DataFactory/factories/@{pipeline().DataFactory}/queryPipelineRuns?api-version=2018-06-01",
+									"type": "Expression"
+								},
+								"method": "POST",
+								"body": {
+									"lastUpdatedAfter": "@{adddays(utcnow(),int(activity('Get Query Run Days Value').output.firstRow.Prop_0))}",
+									"lastUpdatedBefore": "@{utcnow()}",
+									"filters": [
+										{
+											"operand": "PipelineName",
+											"operator": "Equals",
+											"values": [
+												"@{pipeline().parameters.PipelineName}"
+											]
+										}
+									]
+								},
+								"authentication": {
+									"type": "MSI",
+									"resource": "https://management.azure.com"
+								}
+							}
+						}
+					],
+					"timeout": "7.00:00:00"
+				}
+			}
+		],
+		"parameters": {
+			"PipelineName": {
+				"type": "string",
+				"defaultValue": "test_pipeline"
+			}
+		},
+		"variables": {
+			"SubscriptionId": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-03-30T18:34:07Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

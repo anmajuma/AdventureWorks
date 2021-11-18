@@ -1,0 +1,17 @@
+{
+	"name": "dem0adf001",
+	"properties": {
+		"globalParameters": {
+			"test_gobal_param": {
+				"type": "string",
+				"value": "test"
+			}
+		}
+	},
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "4685c19e-93f7-419d-8db7-124249db5083",
+		"tenantId": "6d37034b-3c0b-46b0-a541-2c09f979ed46"
+	}
+}

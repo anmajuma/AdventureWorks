@@ -1,0 +1,18 @@
+{
+	"name": "AzureBatch1",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBatch",
+		"typeProperties": {
+			"accountName": "demobatch01",
+			"batchUri": "https://demobatch01.eastus.batch.azure.com",
+			"poolName": "demopythonpool",
+			"linkedServiceName": {
+				"referenceName": "AzureBatchStorage",
+				"type": "LinkedServiceReference"
+			},
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRFTTBBREYwMDFfNjQ5M2RjMzItZmMzZC00Y2NlLWE4OTItNzc2NTA1MmM5YTdkIg0KfQ=="
+		}
+	}
+}
