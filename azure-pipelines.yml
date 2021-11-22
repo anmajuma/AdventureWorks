@@ -30,7 +30,7 @@ steps:
   inputs:
     command: 'custom'
     workingDir: '$(Build.Repository.LocalPath)/deployment-script' #replace with the package.json folder
-    customCommand: 'run build validate $(Build.Repository.LocalPath) /subscriptions/ac90002c-698e-4529-95d3-48e20a731732/resourceGroups/demorg/providers/Microsoft.DataFactory/factories/dem0adf001'
+    customCommand: 'run build validate $(Build.Repository.LocalPath)/adf-root /subscriptions/ac90002c-698e-4529-95d3-48e20a731732/resourceGroups/demorg/providers/Microsoft.DataFactory/factories/dem0adf001'
   displayName: 'Validate'
 
 # Validate and then generate the ARM template into the destination folder, which is the same as selecting "Publish" from the UX.
@@ -40,7 +40,7 @@ steps:
   inputs:
     command: 'custom'
     workingDir: '$(Build.Repository.LocalPath)/deployment-script' #replace with the package.json folder
-    customCommand: 'run build export $(Build.Repository.LocalPath) /subscriptions/ac90002c-698e-4529-95d3-48e20a731732/resourceGroups/demorg/providers/Microsoft.DataFactory/factories/dem0adf001 "ArmTemplate"'
+    customCommand: 'run build export $(Build.Repository.LocalPath)/adf-root /subscriptions/ac90002c-698e-4529-95d3-48e20a731732/resourceGroups/demorg/providers/Microsoft.DataFactory/factories/dem0adf001 "ArmTemplate"'
   displayName: 'Validate and Generate ARM template'
 
 # Publish the artifact to be used as a source for a release pipeline.
