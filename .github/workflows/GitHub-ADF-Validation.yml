@@ -1,4 +1,4 @@
-name: GitHub ADF Validation
+name: GitHub-ADF-Validation
 on: [push]
 jobs:
   GitHub-ADF-Validation:
