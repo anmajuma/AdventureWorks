@@ -1,0 +1,6 @@
+steps:
+  - name: Validate Data Factory resources
+    uses: Azure/data-factory-validate-action@v1.1.5
+     with:
+       path: ./adf-root
+       id: /subscriptions/ac90002c-698e-4529-95d3-48e20a731732/resourceGroups/demorg/providers/Microsoft.DataFactory/factories/dem0adf001
